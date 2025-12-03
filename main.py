@@ -3,12 +3,13 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5.QtCore import pyqtSignal, QObject, QSize
 from ui import Ui_MainWindow
+from collections import deque
 
 
 class MyApp(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-
+        self.adj_list = {}
         self.setupUi(self) 
         
         # add icon to home button
@@ -32,6 +33,38 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.run_algo_button.clicked.connect(self.handle_run_algorithm)
 
     
+    def bfs_shortest_paths(self, graph, start):
+        dist = {v: float('inf') for v in graph}
+        parent = {v: None for v in graph}
+        visited = set()
+        q = deque([start])
+        visited.add(start)
+        dist[start] = 0
+        order = []
+
+        while q:
+            u = q.popleft()
+            order.append(u)
+            for v in graph[u]:
+                if v not in visited:
+                    visited.add(v)
+                    dist[v] = dist[u] + 1
+                    parent[v] = u
+                    q.append(v)
+        return dist, parent, order
+        
+    def reconstruct_path(self, parent, start, target):
+        rev_path = []
+        cur = target
+        while cur is not None:
+            rev_path.append(cur)
+            if cur == start:
+                break
+            cur = parent.get(cur,None)
+        if not rev_path or rev_path[-1] != start:
+            return []
+        return list(reversed(rev_path))
+
     # functions for sidebar buttons
     def go_to_home_page(self):
         self.stackedWidget.setCurrentWidget(self.home_page)
@@ -48,38 +81,41 @@ class MyApp(QMainWindow, Ui_MainWindow):
     def go_to_algo_info_page(self):
         self.stackedWidget.setCurrentWidget(self.algo_info)
     
+    # function to insert edge
     def insert_edge(self):
-        node1 = self.building_name_input.text()
-        node2 = self.neighbor_name_input.text()
+        node1 = self.building_name_input.text().upper()
+        node2 = self.neighbor_name_input.text().upper()
 
-        if node1.lower() == node2.lower():
+        # check if user is inputting the same name for both buildings
+        if node1 == node2:
             QMessageBox.warning(self, "Warning!", "Building cannot connect to itself")
             return
         
         distance = self.distance_input.value()
 
-        if node1 not in adj_list:
-            adj_list[node1] = {}
+        # check if building exists in the adjacency list
+        if node1 not in self.adj_list:               # if not add a new entry into the dictionary 
+            self.adj_list[node1] = {}
             self.update_combo_boxes(node1)
 
-        adj_list[node1][node2] = distance
+        self.adj_list[node1][node2] = distance
         
-        if node2 not in adj_list:
-            adj_list[node2] = {}
+        if node2 not in self.adj_list:
+            self.adj_list[node2] = {}
             self.update_combo_boxes(node2)
         
-        adj_list[node2][node1] = distance
+        self.adj_list[node2][node1] = distance
 
         self.building_name_input.setText("")
         self.neighbor_name_input.setText("")
         self.distance_input.setValue(0)
         formatted_string = ""
-        for building, connection in adj_list.items():
+        for building, connection in self.adj_list.items():
             formatted_string += (f"{building} : {connection}\n")
         self.adjacency_list_display.setText(formatted_string)
-        print(adj_list)
+        print(self.adj_list)
         
-
+    # function to update combo boxes with the node inputted by user
     def update_combo_boxes(self, new_node):
         if self.start_building_combo.findText(new_node) == -1:
             self.start_building_combo.addItem(new_node)
@@ -91,16 +127,21 @@ class MyApp(QMainWindow, Ui_MainWindow):
         algo = self.algorithm_combo.currentText()
         
         print(f"Running {algo} from {start_node} to {end_node}")
-        
-        self.navigator_output_display.setText(f"Algorithm running...\nStart: {start_node}\nEnd: {end_node}")
+        dist, parent, order = self.bfs_shortest_paths(self.adj_list, start_node)
+        path = self.reconstruct_path(parent, start_node, end_node)
+
+        if path:
+            path_str = " -> ".join(path)
+            hops = len(path) - 1
+            result_text = (f"Algorithm: BFS \nPath: {path_str} \nHops: {hops}")
+        else:
+            result_text = "No path found"
+        self.navigator_output_display.setText(result_text)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MyApp()
     window.show()
-
-    adj_list = {}
-
 
 
     sys.exit(app.exec_())

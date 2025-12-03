@@ -213,6 +213,10 @@ class Ui_MainWindow(object):
         self.algorithm_combo = QtWidgets.QComboBox(self.campus_nav)
         self.algorithm_combo.setStyleSheet("")
         self.algorithm_combo.setObjectName("algorithm_combo")
+        self.algorithm_combo.addItem("")
+        self.algorithm_combo.addItem("")
+        self.algorithm_combo.addItem("")
+        self.algorithm_combo.addItem("")
         self.horizontalLayout_6.addWidget(self.algorithm_combo)
         self.horizontalLayout_13.addLayout(self.horizontalLayout_6)
         self.run_algo_button = QtWidgets.QPushButton(self.campus_nav)
@@ -428,7 +432,7 @@ class Ui_MainWindow(object):
         self.campus_nav_button.setSizePolicy(sizePolicy)
         self.campus_nav_button.setMaximumSize(QtCore.QSize(1677721, 16777215))
         font = QtGui.QFont()
-
+        
         font.setBold(True)
         font.setItalic(False)
         font.setWeight(75)
@@ -521,8 +525,9 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(1)
         self.start_building_combo.setCurrentIndex(-1)
+        self.algorithm_combo.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -543,6 +548,10 @@ class Ui_MainWindow(object):
         self.end_building_combo.setPlaceholderText(_translate("MainWindow", "End Building"))
         self.label_9.setText(_translate("MainWindow", "Select Algo:"))
         self.algorithm_combo.setPlaceholderText(_translate("MainWindow", "Choose Algorithm"))
+        self.algorithm_combo.setItemText(0, _translate("MainWindow", "BFS"))
+        self.algorithm_combo.setItemText(1, _translate("MainWindow", "DFS"))
+        self.algorithm_combo.setItemText(2, _translate("MainWindow", "Dijkstra"))
+        self.algorithm_combo.setItemText(3, _translate("MainWindow", "Prim\'s"))
         self.run_algo_button.setText(_translate("MainWindow", "Run Algorithm"))
         self.navigator_output_display.setPlaceholderText(_translate("MainWindow", "Navigator Output Here"))
         self.task_creation_label.setText(_translate("MainWindow", "Task Creation"))
