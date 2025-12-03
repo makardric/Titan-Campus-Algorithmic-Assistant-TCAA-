@@ -1,1 +1,1 @@
-# Titan-Campus-Algorithmic-Assistant-TCAA-
+# Titan-Campus-Algorithmic-Assistant-TCAA
