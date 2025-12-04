@@ -9,8 +9,28 @@ from collections import deque
 class MyApp(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        self.adj_list = {}
         self.setupUi(self) 
+
+        # hardcoded for example sake as well as testing
+        self.adj_list = {
+            "LIBRARY": {"GYM": 10, "DORM": 5, "SCIENCE HALL": 20},
+            "GYM": {"LIBRARY": 10, "CAFETERIA": 8},
+            "DORM": {"LIBRARY": 5, "CAFETERIA": 15},
+            "CAFETERIA": {"GYM": 8, "DORM": 15},
+            "SCIENCE HALL": {"LIBRARY": 20}
+        }
+
+        # add adj_list to the comboboxes
+        for building in self.adj_list.keys():
+            self.start_building_combo.addItem(building)
+            self.end_building_combo.addItem(building)
+
+        # display current adj_list to the text box
+        adj_list_string = ""
+        for building, connection in self.adj_list.items():
+            adj_list_string += (f"{building} : {connection}\n")
+        self.adjacency_list_display.setText(adj_list_string)
+        
         
         # add icon to home button
         buttonIcon = QIcon("resources/titans logo.png")
@@ -50,7 +70,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
                     dist[v] = dist[u] + 1
                     parent[v] = u
                     q.append(v)
-        return dist, parent, order
+        return parent, order
     
     # helper function for bfs
     def reconstruct_path(self, parent, start, target):
@@ -64,6 +84,36 @@ class MyApp(QMainWindow, Ui_MainWindow):
         if not rev_path or rev_path[-1] != start:
             return []
         return list(reversed(rev_path))
+
+    def dfs_path(self, graph, start, target):
+        visited = set()
+        parent = {}
+        order = []
+        found = False
+        has_cycle = False
+
+        def dfs(u, prev_node):
+            nonlocal found, has_cycle
+            
+            visited.add(u)
+            order.append(u)
+
+            if u == target:
+                found = True
+
+            for v in graph.get(u, {}):
+
+                if v in visited and v != prev_node:
+                    has_cycle = True
+
+                if v not in visited:
+                    parent[v] = u
+                    dfs(v, u)
+
+        if start in graph:
+            dfs(start, None)
+
+        return parent, order, has_cycle
 
     # functions for sidebar buttons
     def go_to_home_page(self):
@@ -129,18 +179,43 @@ class MyApp(QMainWindow, Ui_MainWindow):
         
         print(f"Running {algo} from {start_node} to {end_node}")
         if algo == "BFS":
-            dist, parent, order = self.bfs_shortest_paths(self.adj_list, start_node)
+            parent, order = self.bfs_shortest_paths(self.adj_list, start_node)
             path = self.reconstruct_path(parent, start_node, end_node)
 
             if path:
                 path_str = " -> ".join(path)
                 hops = len(path) - 1
-                result_text = (f"Algorithm: BFS \nPath: {path_str} \nHops: {hops}")
+                result_text = (f"Algorithm: BFS \
+                                \nPath: {path_str} \
+                                \nHops: {hops}")
+                print(order)
             else:
                 result_text = "No path found"
             self.navigator_output_display.setText(result_text)
+
         elif algo == "DFS":
-            pass
+            parent, order, has_cycle = self.dfs_path(self.adj_list, start_node, end_node)
+            path = self.reconstruct_path(parent, start_node, end_node)
+
+            if path:
+                path_str = " -> ".join(path)
+
+                # get total distance
+                total_dist = 0
+                for i in range(len(path) - 1):
+                    u = path[i]
+                    v = path[i+1]
+                    total_dist += self.adj_list[u][v]
+                
+                hops = len(path) - 1
+                result_text = (f"Algorithm: DFS\
+                                \nPath: {path_str}\
+                                \nHops: {hops}\
+                                \nCycle: {has_cycle}\
+                                \nDistance: {total_dist}")
+            else:
+                result_text = "No path found"
+            self.navigator_output_display.setText(result_text)
         elif algo == "Dijkstra":
             pass
         elif algo == "Prim's":
