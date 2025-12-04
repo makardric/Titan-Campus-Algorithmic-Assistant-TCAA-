@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5.QtCore import QSize, Qt, QCoreApplication
 from ui import Ui_MainWindow
 from collections import deque
+import heapq
 
 
 class MyApp(QMainWindow, Ui_MainWindow):
@@ -115,6 +116,60 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
         return parent, order, has_cycle
 
+    def dijkstra(self, graph, start, target):
+        dist = {v: float('inf') for v in graph}
+        dist[start] = 0
+
+        parent = {v: None for v in graph}
+
+        pq = [(0, start)]
+
+        visited = set()
+
+        while pq:
+            current_dist, u = heapq.heappop(pq)
+
+            if u == target:
+                break
+
+            if u in visited:
+                continue
+            visited.add(u)
+
+            for v, weight in graph.get(u, {}).items():
+                distance = current_dist + weight
+                if distance < dist[v]:
+                    dist[v] = distance
+                    parent[v] = u
+                    heapq.heappush(pq, (distance, v))
+        
+        return dist, parent
+
+    def prim(self, graph, start):
+        mst_edges = []
+        visited = set()
+        total_cost = 0
+
+        min_heap = [(0, start, start)]
+
+        while min_heap:
+            weight, u, v = heapq.heappop(min_heap)
+
+            if v in visited:
+                continue
+                
+            visited.add(v)
+            total_cost += weight
+
+            if u!= v:
+                mst_edges.append((u, v, weight))
+
+            for neighbor, edge_weight in graph.get(v, {}).items():
+                if neighbor not in visited:
+                    heapq.heappush(min_heap, (edge_weight, v, neighbor))
+        
+        return mst_edges, total_cost
+
     # functions for sidebar buttons
     def go_to_home_page(self):
         self.stackedWidget.setCurrentWidget(self.home_page)
@@ -212,14 +267,40 @@ class MyApp(QMainWindow, Ui_MainWindow):
                                 \nPath: {path_str}\
                                 \nHops: {hops}\
                                 \nCycle: {has_cycle}\
-                                \nDistance: {total_dist}")
+                                \nTotal Distance: {total_dist}")
             else:
                 result_text = "No path found"
             self.navigator_output_display.setText(result_text)
+
         elif algo == "Dijkstra":
-            pass
+            distances, parent = self.dijkstra(self.adj_list, start_node, end_node)
+            path = self.reconstruct_path(parent, start_node, end_node)
+
+            if path:
+                path_str = " -> ".join(path)
+                total_dist = distances[end_node]
+                result_text = (f"Algorithm: Dijkstra\
+                               \nPath: {path_str}\
+                               \nTotal Distance: {total_dist}")
+            else:
+                result_text = "No path found"
+            self.navigator_output_display.setText(result_text)
+
         elif algo == "Prim's":
-            pass
+            edges, total_cost = self.prim(self.adj_list, start_node)
+
+            if edges:
+                edges_str = "" 
+                for u, v, w in edges:
+                    edges_str += f"{u} -- {w} -- > {v}\n"
+                
+                result_text = (f"Algorithm: Prim's (MST)\
+                               \nTotal Cost: {total_cost}\
+                               \nEdges in MST:\n{edges_str}")
+            
+            else:
+                result_text = "No edges found"
+            self.navigator_output_display.setText(result_text)
 
 if __name__ == "__main__":
     # lines to help scaling on different monitors
