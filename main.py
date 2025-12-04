@@ -25,14 +25,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.campus_nav_button.clicked.connect(self.go_to_campus_nav_page)
         self.study_planner_button.clicked.connect(self.go_to_study_planner_page)
         self.notes_search_button.clicked.connect(self.go_to_notes_search_page) 
-        self.algo_info_button.clicked.connect(self.go_to_algo_info_page)
-        
+        self.algo_info_button.clicked.connect(self.go_to_algo_info_page)        
 
         # connecting functions to buttons on all pages
         self.add_edge_button.clicked.connect(self.insert_edge)
         self.run_algo_button.clicked.connect(self.handle_run_algorithm)
 
-    
+    # bfs algorithm
     def bfs_shortest_paths(self, graph, start):
         dist = {v: float('inf') for v in graph}
         parent = {v: None for v in graph}
@@ -52,7 +51,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
                     parent[v] = u
                     q.append(v)
         return dist, parent, order
-        
+    
+    # helper function for bfs
     def reconstruct_path(self, parent, start, target):
         rev_path = []
         cur = target
@@ -121,24 +121,33 @@ class MyApp(QMainWindow, Ui_MainWindow):
             self.start_building_combo.addItem(new_node)
             self.end_building_combo.addItem(new_node)
 
+    # function to handle running the selected algorithm
     def handle_run_algorithm(self):
         start_node = self.start_building_combo.currentText()
         end_node = self.end_building_combo.currentText()
         algo = self.algorithm_combo.currentText()
         
         print(f"Running {algo} from {start_node} to {end_node}")
-        dist, parent, order = self.bfs_shortest_paths(self.adj_list, start_node)
-        path = self.reconstruct_path(parent, start_node, end_node)
+        if algo == "BFS":
+            dist, parent, order = self.bfs_shortest_paths(self.adj_list, start_node)
+            path = self.reconstruct_path(parent, start_node, end_node)
 
-        if path:
-            path_str = " -> ".join(path)
-            hops = len(path) - 1
-            result_text = (f"Algorithm: BFS \nPath: {path_str} \nHops: {hops}")
-        else:
-            result_text = "No path found"
-        self.navigator_output_display.setText(result_text)
+            if path:
+                path_str = " -> ".join(path)
+                hops = len(path) - 1
+                result_text = (f"Algorithm: BFS \nPath: {path_str} \nHops: {hops}")
+            else:
+                result_text = "No path found"
+            self.navigator_output_display.setText(result_text)
+        elif algo == "DFS":
+            pass
+        elif algo == "Dijkstra":
+            pass
+        elif algo == "Prim's":
+            pass
 
 if __name__ == "__main__":
+    # lines to help scaling on different monitors
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     
