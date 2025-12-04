@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidgetItem, QHeaderView
 from PyQt5.QtCore import QSize, Qt, QCoreApplication
 from ui import Ui_MainWindow
 from collections import deque
@@ -12,27 +12,6 @@ class MyApp(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self) 
 
-        # hardcoded for example sake as well as testing
-        self.adj_list = {
-            "LIBRARY": {"GYM": 10, "DORM": 5, "SCIENCE HALL": 20},
-            "GYM": {"LIBRARY": 10, "CAFETERIA": 8},
-            "DORM": {"LIBRARY": 5, "CAFETERIA": 15},
-            "CAFETERIA": {"GYM": 8, "DORM": 15},
-            "SCIENCE HALL": {"LIBRARY": 20}
-        }
-
-        # add adj_list to the comboboxes
-        for building in self.adj_list.keys():
-            self.start_building_combo.addItem(building)
-            self.end_building_combo.addItem(building)
-
-        # display current adj_list to the text box
-        adj_list_string = ""
-        for building, connection in self.adj_list.items():
-            adj_list_string += (f"{building} : {connection}\n")
-        self.adjacency_list_display.setText(adj_list_string)
-        
-        
         # add icon to home button
         buttonIcon = QIcon("resources/titans logo.png")
         self.home_button.setIcon(buttonIcon)
@@ -52,6 +31,54 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.add_edge_button.clicked.connect(self.insert_edge)
         self.run_algo_button.clicked.connect(self.handle_run_algorithm)
 
+
+
+# campus nav page 
+
+        # hardcoded adjacency list for example's sake as well as testing
+        self.adj_list = {
+            "LIBRARY": {"GYM": 10, "DORM": 5, "SCIENCE HALL": 20},
+            "GYM": {"LIBRARY": 10, "CAFETERIA": 8},
+            "DORM": {"LIBRARY": 5, "CAFETERIA": 15},
+            "CAFETERIA": {"GYM": 8, "DORM": 15},
+            "SCIENCE HALL": {"LIBRARY": 20}
+        }
+
+        # add adj_list to the comboboxes
+        for building in self.adj_list.keys():
+            self.start_building_combo.addItem(building)
+            self.end_building_combo.addItem(building)
+
+        # display current adj_list to the text box
+        adj_list_string = ""
+        for building, connection in self.adj_list.items():
+            adj_list_string += (f"{building} : {connection}\n")
+        self.adjacency_list_display.setText(adj_list_string)
+        
+# study planner page 
+        self.study_tasks = []
+        self.add_task_button.clicked.connect(self.add_task)
+
+        self.task_list_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+# functions for sidebar buttons
+    def go_to_home_page(self):
+        self.stackedWidget.setCurrentWidget(self.home_page)
+
+    def go_to_campus_nav_page(self):
+        self.stackedWidget.setCurrentWidget(self.campus_nav) 
+
+    def go_to_study_planner_page(self):
+        self.stackedWidget.setCurrentWidget(self.study_planner)
+
+    def go_to_notes_search_page(self):
+        self.stackedWidget.setCurrentWidget(self.notes_search)
+
+    def go_to_algo_info_page(self):
+        self.stackedWidget.setCurrentWidget(self.algo_info)
+
+# campus nav functions
+         
     # bfs algorithm
     def bfs_shortest_paths(self, graph, start):
         dist = {v: float('inf') for v in graph}
@@ -86,6 +113,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
             return []
         return list(reversed(rev_path))
 
+    # function for dfs
     def dfs_path(self, graph, start, target):
         visited = set()
         parent = {}
@@ -116,6 +144,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
         return parent, order, has_cycle
 
+    # function for dijkstra
     def dijkstra(self, graph, start, target):
         dist = {v: float('inf') for v in graph}
         dist[start] = 0
@@ -145,6 +174,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         
         return dist, parent
 
+    # function for prim's
     def prim(self, graph, start):
         mst_edges = []
         visited = set()
@@ -169,24 +199,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
                     heapq.heappush(min_heap, (edge_weight, v, neighbor))
         
         return mst_edges, total_cost
-
-    # functions for sidebar buttons
-    def go_to_home_page(self):
-        self.stackedWidget.setCurrentWidget(self.home_page)
-
-    def go_to_campus_nav_page(self):
-        self.stackedWidget.setCurrentWidget(self.campus_nav) 
-
-    def go_to_study_planner_page(self):
-        self.stackedWidget.setCurrentWidget(self.study_planner)
-
-    def go_to_notes_search_page(self):
-        self.stackedWidget.setCurrentWidget(self.notes_search)
-
-    def go_to_algo_info_page(self):
-        self.stackedWidget.setCurrentWidget(self.algo_info)
     
-    # function to insert edge
+    # function to insert edge for campus nav
     def insert_edge(self):
         node1 = self.building_name_input.text().upper()
         node2 = self.neighbor_name_input.text().upper()
@@ -226,7 +240,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
             self.start_building_combo.addItem(new_node)
             self.end_building_combo.addItem(new_node)
 
-    # function to handle running the selected algorithm
+    # function to handle running the selected algorithm for campus nav
     def handle_run_algorithm(self):
         start_node = self.start_building_combo.currentText()
         end_node = self.end_building_combo.currentText()
@@ -301,6 +315,41 @@ class MyApp(QMainWindow, Ui_MainWindow):
             else:
                 result_text = "No edges found"
             self.navigator_output_display.setText(result_text)
+
+
+# study planner functions
+
+    def add_task(self):
+        task_name = self.task_name_input.text().upper()
+        task_time = self.task_time_input.value()
+        task_value = self.task_value_input.value()
+
+        if not task_name:
+            QMessageBox.warning(self, "Warning", "Please enter a task name.")
+            return
+
+        task_tuple = (task_name, task_time, task_value)
+        
+        self.study_tasks.append(task_tuple)
+
+        self.add_task_to_table(task_name, task_time, task_value)
+
+        self.task_name_input.setText("")
+        self.task_time_input.setValue(0)
+        self.task_value_input.setValue(0)
+
+    def add_task_to_table(self, name, time, value):
+        row_position = self.task_list_table.rowCount()
+
+        self.task_list_table.insertRow(row_position)
+
+        name_item = QTableWidgetItem(name)
+        time_item = QTableWidgetItem(str(time) + " hour(s)")
+        value_item = QTableWidgetItem(str(value))
+
+        self.task_list_table.setItem(row_position, 0, name_item)
+        self.task_list_table.setItem(row_position, 1, time_item)
+        self.task_list_table.setItem(row_position, 2, value_item)
 
 if __name__ == "__main__":
     # lines to help scaling on different monitors
