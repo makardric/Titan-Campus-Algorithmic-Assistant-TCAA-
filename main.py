@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
-from PyQt5.QtCore import pyqtSignal, QObject, QSize
+from PyQt5.QtCore import QSize, Qt, QCoreApplication
 from ui import Ui_MainWindow
 from collections import deque
 
@@ -139,9 +139,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.navigator_output_display.setText(result_text)
 
 if __name__ == "__main__":
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    
     app = QApplication(sys.argv)
     window = MyApp()
     window.show()
-
-
     sys.exit(app.exec_())

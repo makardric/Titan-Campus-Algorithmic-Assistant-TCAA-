@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1210, 766)
+        MainWindow.resize(1280, 720)
         MainWindow.setStyleSheet("background-color:")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -48,7 +48,7 @@ class Ui_MainWindow(object):
         self.logo_image.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.logo_image.setAutoFillBackground(False)
         self.logo_image.setText("")
-        self.logo_image.setPixmap(QtGui.QPixmap("../../../../Downloads/csuf logo.png"))
+        self.logo_image.setPixmap(QtGui.QPixmap("resources/csuf logo.png"))
         self.logo_image.setScaledContents(True)
         self.logo_image.setObjectName("logo_image")
         self.image_layout.addWidget(self.logo_image)
@@ -605,13 +605,3 @@ class Ui_MainWindow(object):
         self.study_planner_button.setText(_translate("MainWindow", "STUDY PLANNER"))
         self.notes_search_button.setText(_translate("MainWindow", "NOTE SEARCH ENGINE"))
         self.algo_info_button.setText(_translate("MainWindow", "ALGORITHM INFO"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
