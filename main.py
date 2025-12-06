@@ -436,7 +436,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
                        \nTime Used: {greedy_time}/{capacity}\
                        \n\nDP Algorithm\
                        \nSchedule: {dp_str}\
-                       \Total Value: {dp_value}\
+                       \nTotal Value: {dp_value}\
                        \nTime Used: {dp_time}/{capacity}"
                        )
 
