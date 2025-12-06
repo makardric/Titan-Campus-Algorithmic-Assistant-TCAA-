@@ -1,10 +1,9 @@
-import sys
+import sys, heapq, PyPDF2, docx, os, time, re
+from collections import deque
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidgetItem, QHeaderView, QFileDialog
 from PyQt5.QtCore import QSize, Qt, QCoreApplication
 from ui import Ui_MainWindow
-from collections import deque
-import heapq
 
 
 class MyApp(QMainWindow, Ui_MainWindow):
@@ -56,11 +55,28 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.adjacency_list_display.setText(adj_list_string)
         
 # study planner page 
-        self.study_tasks = []
+
+        # hardcoded tasks for example's sake and testing
+        self.study_tasks = [
+            ("STUDY FOR MATH", 4, 10),
+            ("HISTORY HOMEWORK", 3, 7),
+            ("PHYSICS LAB", 2, 4)
+        ]
+
+        # add the hardcoded tasks to table
+        for name, time, value in self.study_tasks:
+            self.add_task_to_table(name, time, value)
+
+        # connect functions to buttons/input
         self.add_task_button.clicked.connect(self.add_task)
-
         self.task_list_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.run_scheduler_button.clicked.connect(self.generate_schedule)
 
+# notes search engine page
+        self.text_files = {}
+        self.add_file_button.clicked.connect(self.insert_file)
+        self.file_list_combo.currentIndexChanged.connect(self.update_file_display)
+        self.search_button.clicked.connect(self.run_search)
 # functions for sidebar buttons
     def go_to_home_page(self):
         self.stackedWidget.setCurrentWidget(self.home_page)
@@ -351,6 +367,291 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.task_list_table.setItem(row_position, 1, time_item)
         self.task_list_table.setItem(row_position, 2, value_item)
 
+    # function runs both greedy and dp (knapsack)
+    def generate_schedule(self):
+        capacity = self.total_time_input.value()
+        tasks = self.study_tasks
+        n = len(tasks)
+
+        if n == 0:
+            self.totals_label.setText("No tasks added!")
+            return
+        
+        # greedy algorithm
+        greedy_list = []
+        for name, time, value in tasks:
+            if time > 0:
+                ratio = value/time
+                greedy_list.append((ratio, name, time, value))
+
+        # sort the list by the ratios greatest to least
+        greedy_list.sort(key=lambda x: x[0], reverse=True)
+
+        greedy_time = 0
+        greedy_value = 0
+        greedy_selected = []
+
+        for _, name, time, value in greedy_list:
+            if greedy_time + time <= capacity:
+                greedy_selected.append(name)
+                greedy_time += time
+                greedy_value += value
+
+        # dp algorithm
+        dp = [[0 for _ in range(capacity + 1)] for _ in range(n + 1)]
+
+        for i in range(1, n + 1):
+            name, time, value = tasks[i-1]
+            for w in range(capacity + 1):
+                if time <= w:
+                    dp[i][w] = max(dp[i-1][w], dp[i-1][w - time] + value)
+                else:
+                    dp[i][w] = dp[i-1][w]
+
+        dp_value = dp[n][capacity]
+        dp_selected = []
+        dp_time = 0
+        w = capacity
+        for i in range(n, 0, -1):
+            if dp[i][w] != dp[i-1][w]:
+                name, time, value = tasks[i-1]
+                dp_selected.append(name)
+                dp_time += time
+                w -= time
+        dp_selected.reverse()      
+
+
+        greedy_str = ", ".join(greedy_selected) if greedy_selected else "None"
+        dp_str = ", ".join(dp_selected) if dp_selected else "None"
+
+        result_text = (f"Greedy Vs. DP\
+                       \nGreedy Algorithm:\
+                       \nSchedule: {greedy_str}\
+                       \nTotal Value: {greedy_value}\
+                       \nTime Used: {greedy_time}/{capacity}\
+                       \n\nDP Algorithm\
+                       \nSchedule: {dp_str}\
+                       \nTime Used: {dp_time}/{capacity}\
+                       \nMax Value: {dp_value}")
+
+        if greedy_value < dp_value:
+            diff = dp_value - greedy_value
+            result_text += (f"\nGreedy failed. DP found +{diff} value.")
+        else:
+            result_text += (f"\nGreedy found the optimal schedule.")
+
+        self.totals_label.setText(result_text)
+
+
+# note search engine page functions
+    # function to insert a file
+    def insert_file(self):
+        file_path,_ = QFileDialog.getOpenFileName(self, "Open File", "", "Text Files (*.txt *.pdf *.docx)")
+
+        if not file_path:
+            return
+        
+        filename = os.path.basename(file_path)
+        file_text = ""
+        try:
+            if filename.lower().endswith('.pdf'):
+                with open(file_path, "rb") as f:
+                    reader = PyPDF2.PdfReader(f)
+                    for page in reader.pages:
+                        file_text += page.extract_text() + "\n"
+        
+            elif file_path.lower().endswith('.docx'):
+                doc = docx.Document(file_path)
+                for para in doc.paragraphs:
+                    file_text += para.text + "\n"
+            else:
+                with open(file_path, "r", encoding = "utf-8") as f:
+                    file_text += f.read()
+        
+            if filename not in self.text_files:
+                self.file_list_combo.addItem(filename)
+            
+            self.text_files[filename] = file_text
+
+            self.file_list_combo.setCurrentText(filename)
+
+            self.file_text_display.setText(file_text)
+
+        except:
+            QMessageBox.critical(self, "Error", "Could not read file")
+
+    # updates the file text display when user changes the file in combo box
+    def update_file_display(self):
+            current_filename = self.file_list_combo.currentText()
+            
+            if current_filename in self.text_files:
+                content = self.text_files[current_filename]
+                self.file_text_display.setText(content)
+
+    def naive_search(self, lines, keyword):
+        matches = []
+        m = len(keyword)
+        
+        for line_num, line in enumerate(lines, start=1):
+            text = line.lower() 
+            n = len(text)
+            
+            for i in range(n - m + 1):
+                if text[i:i+m] == keyword:
+                    matches.append((line_num, line.strip()))
+                    break 
+        return matches
+
+    def rabin_karp(self, lines, keyword):
+        matches = []
+        m = len(keyword)
+        d = 256 
+        q = 101 
+        
+        h = 1
+        for i in range(m-1):
+            h = (h * d) % q
+        
+        p = 0
+        for i in range(m):
+            p = (d * p + ord(keyword[i])) % q
+
+        for line_num, line in enumerate(lines, start=1):
+            text = line.lower()
+            n = len(text)
+            if m > n: continue
+
+            t = 0
+            for i in range(m):
+                t = (d * t + ord(text[i])) % q
+            
+            for i in range(n - m + 1):
+                if p == t:
+                    if text[i:i+m] == keyword:
+                        matches.append((line_num, line.strip()))
+                        break
+                
+                if i < n - m:
+                    t = (d*(t - ord(text[i])*h) + ord(text[i+m])) % q
+                    if t < 0: t = t + q
+
+        return matches
+        
+    def kmp_search(self, lines, keyword):
+        matches = []
+        m = len(keyword)
+        
+        lps = [0] * m
+        length = 0
+        i = 1
+        while i < m:
+            if keyword[i] == keyword[length]:
+                length += 1
+                lps[i] = length
+                i += 1
+            else:
+                if length != 0:
+                    length = lps[length - 1]
+                else:
+                    lps[i] = 0
+                    i += 1
+
+        for line_num, line in enumerate(lines, start=1):
+            text = line.lower()
+            n = len(text)
+            i = 0 
+            j = 0 
+            
+            while i < n:
+                if keyword[j] == text[i]:
+                    i += 1
+                    j += 1
+                if j == m:
+                    matches.append((line_num, line.strip()))
+                    break 
+                elif i < n and keyword[j] != text[i]:
+                    if j != 0:
+                        j = lps[j-1]
+                    else:
+                        i += 1
+        return matches
+    
+    def run_search(self):
+        current_filename = self.file_list_combo.currentText()
+        keyword = self.search_bar.text().lower()
+        algo_to_run = self.search_algorithm_combo.currentText()
+
+
+        
+        if current_filename not in self.text_files:
+            QMessageBox.warning(self, "Warning", "No file selected!")
+            return
+        
+        if keyword == "":
+            QMessageBox.warning(self, "Warning", "No keyword provided!")
+            return
+
+
+        # cleans up the text to make sure they aren't grouped together by paragraphs
+        text = self.text_files[current_filename] 
+        lines = text.split('\n')
+        clean_text = text.replace('\n', ' ')
+        # separates by punctuation
+        lines = re.split(r'(?<=[.!?])\s+', clean_text)
+        lines = [line.strip() for line in lines if line.strip()]
+        result_text = ""
+
+        # checks if it is one of the three algorithms in combo box
+        if algo_to_run != "ALL (Comparison)":
+            # start timer
+            start_time = time.perf_counter()
+            matches = []
+
+            if algo_to_run == "Naive":   
+                matches = self.naive_search(lines, keyword)
+            elif algo_to_run == "Rabin-Karp":
+                matches = self.rabin_karp(lines, keyword)
+            elif algo_to_run == "KMP":
+                matches = self.kmp_search(lines, keyword)
+
+            end_time = time.perf_counter()
+            elapsed = (end_time - start_time) * 1000
+            
+            result_text = (f"Algorithm: {algo_to_run}\
+                           \nTime: {elapsed:.4f} ms\
+                           \nMatches Found: {len(matches)}")
+            
+            if not matches:
+                result_text += "\nNo matches found."
+            else:
+                for line_num, line_text in matches:
+                    result_text += (f"\nLine {line_num}: {line_text}")
+
+        if algo_to_run == "ALL (Comparison)":
+            naive_start_time = time.perf_counter()
+            naive_matches =self.naive_search(lines, keyword)
+            end_time = time.perf_counter()
+            naive_elapsed = (end_time - naive_start_time) * 1000
+
+            rabin_start_time = time.perf_counter()
+            rabin_matches = self.rabin_karp(lines, keyword)
+            end_time = time.perf_counter()
+            rabin_elapsed = (end_time - rabin_start_time) * 1000
+
+            kmp_start_time = time.perf_counter()
+            kmp_matches = self.kmp_search(lines, keyword)
+            end_time = time.perf_counter()
+            kmp_elapsed = (end_time - kmp_start_time) * 1000
+
+            result_text = (f"Comparison of Naive, Rabin-Karp, and KMP:\
+                            \nNaive time taken: {naive_elapsed:.4f} ms\
+                            \nNaive matches found: {len(naive_matches)}\
+                            \nRabin-Karp time taken: {rabin_elapsed:.4f} ms\
+                            \nRabin-Karp matches found: {len(rabin_matches)}\
+                            \nKMP time taken: {kmp_elapsed:.4f} ms\
+                            \nKMP matches found: {len(kmp_matches)}"
+                            )
+        self.note_display_browser.setText(result_text)
 if __name__ == "__main__":
     # lines to help scaling on different monitors
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
