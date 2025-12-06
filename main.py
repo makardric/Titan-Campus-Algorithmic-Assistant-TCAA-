@@ -159,7 +159,8 @@ class MyApp(QMainWindow, Ui_MainWindow):
         if start in graph:
             dfs(start, None)
 
-        return parent, order, has_cycle
+        is_connected = len(visited) == len(graph)
+        return parent, order, has_cycle, is_connected
 
     # function for dijkstra
     def dijkstra(self, graph, start, target):
@@ -284,7 +285,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
             self.navigator_output_display.setText(result_text)
 
         elif algo == "DFS":
-            parent, order, has_cycle = self.dfs_path(self.adj_list, start_node, end_node)
+            parent, order, has_cycle, is_connected = self.dfs_path(self.adj_list, start_node, end_node)
             path = self.reconstruct_path(parent, start_node, end_node)
 
             if path:
@@ -298,11 +299,14 @@ class MyApp(QMainWindow, Ui_MainWindow):
                     total_dist += self.adj_list[u][v]
                 
                 hops = len(path) - 1
+                
+                connect_status = "Connected" if is_connected else "Disconnected"
                 result_text = (f"Algorithm: DFS\
                                 \nPath: {path_str}\
                                 \nHops: {hops}\
                                 \nCycle: {has_cycle}\
-                                \nTotal Distance: {total_dist}")
+                                \nTotal Distance: {total_dist}\
+                                \nGraph Connectivity: {connect_status}")
             else:
                 result_text = "No path found"
             self.navigator_output_display.setText(result_text)
