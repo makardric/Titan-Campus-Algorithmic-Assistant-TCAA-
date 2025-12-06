@@ -314,8 +314,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
             if path:
                 path_str = " -> ".join(path)
                 total_dist = distances[end_node]
+                hops = len(path) - 1
                 result_text = (f"Algorithm: Dijkstra\
                                \nPath: {path_str}\
+                               \nHops: {hops}\
                                \nTotal Distance: {total_dist}")
             else:
                 result_text = "No path found"
