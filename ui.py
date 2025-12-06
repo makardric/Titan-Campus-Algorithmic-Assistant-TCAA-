@@ -527,7 +527,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(4)
         self.start_building_combo.setCurrentIndex(-1)
         self.algorithm_combo.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -536,7 +536,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.title_label.setText(_translate("MainWindow", "Titan Campus Algorithmic Assistant"))
-        self.text_label.setText(_translate("MainWindow", "CPSC 335"))
+        self.text_label.setText(_translate("MainWindow", "335"))
         self.label.setText(_translate("MainWindow", "Edge Creation"))
         self.label_7.setText(_translate("MainWindow", "Start Building:"))
         self.label_8.setText(_translate("MainWindow", "End Building:"))
@@ -591,6 +591,14 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Space Complexity: </span><span style=\" font-size:10pt; font-weight:600;\">O(V)<br /><br /></span><span style=\" font-size:10pt; font-weight:600; text-decoration: underline;\">Prim\'s:</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Time Complexity: </span><span style=\" font-size:10pt; font-weight:600;\">O((V +E) log V)</span><span style=\" font-size:10pt;\"> using an </span><span style=\" font-size:10pt; font-weight:600;\">adjacency list</span><span style=\" font-size:10pt;\">, where </span><span style=\" font-size:10pt; font-weight:600;\">V</span><span style=\" font-size:10pt;\"> is the number of vertices and </span><span style=\" font-size:10pt; font-weight:600;\">E</span><span style=\" font-size:10pt;\"> is the number of edges in the graph.</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Space Complexity: </span><span style=\" font-size:10pt; font-weight:600;\">O(V+E)</span></p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;\"><br /></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600; text-decoration: underline;\">Greedy Knapsack:</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Time Complexity: </span><span style=\" font-size:10pt; font-weight:600;\">O(n log n)</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Space Complexity: </span><span style=\" font-size:10pt; font-weight:600;\">O(1)</span></p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;\"><br /></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600; text-decoration: underline;\">DP Knapsack:</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Time Complexity: </span><span style=\" font-size:10pt; font-weight:600;\">O(n*w)</span><span style=\" font-size:10pt;\">, where n is the number of items/tasks and w is the maximum capacity/time</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Space Complexity: </span><span style=\" font-size:10pt; font-weight:600;\">O(n*w)</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;\"><br /></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600; text-decoration: underline;\">Naive Search Algorithm:</span><span style=\" font-size:10pt; font-weight:600;\"><br /></span><span style=\" font-size:10pt;\">Time Complexity:</span><span style=\" font-size:10pt; font-weight:600;\"> O(m*n) </span><span style=\" font-size:10pt;\">where </span><span style=\" font-size:10pt; font-weight:600;\">n</span><span style=\" font-size:10pt;\"> represents the length of the text and </span><span style=\" font-size:10pt; font-weight:600;\">m</span><span style=\" font-size:10pt;\"> represents the length of the pattern being searched for.<br />Space Complexity</span><span style=\" font-size:10pt; font-weight:600;\"> : O(1)<br /></span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt; font-weight:600; text-decoration: underline;\">Rabin-Karp:</span></p>\n"

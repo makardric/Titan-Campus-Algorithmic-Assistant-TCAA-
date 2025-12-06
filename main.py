@@ -36,11 +36,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
         # hardcoded adjacency list for example's sake as well as testing
         self.adj_list = {
-            # "LIBRARY": {"GYM": 10, "DORM": 5, "SCIENCE HALL": 20},
-            # "GYM": {"LIBRARY": 10, "CAFETERIA": 8},
-            # "DORM": {"LIBRARY": 5, "CAFETERIA": 15},
-            # "CAFETERIA": {"GYM": 8, "DORM": 15},
-            # "SCIENCE HALL": {"LIBRARY": 20}
+            "LIBRARY": {"GYM": 10, "DORM": 5, "SCIENCE HALL": 20},
+            "GYM": {"LIBRARY": 10, "CAFETERIA": 8},
+            "DORM": {"LIBRARY": 5, "CAFETERIA": 15},
+            "CAFETERIA": {"GYM": 8, "DORM": 15},
+            "SCIENCE HALL": {"LIBRARY": 20}
         }
 
         # add adj_list to the comboboxes
@@ -58,9 +58,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
         # hardcoded tasks for example's sake and testing
         self.study_tasks = [
-            # ("STUDY FOR MATH", 4, 10),
-            # ("HISTORY HOMEWORK", 3, 7),
-            # ("PHYSICS LAB", 2, 4)
+            ("STUDY FOR MATH", 4, 10),
+            ("HISTORY HOMEWORK", 3, 7),
+            ("PHYSICS LAB", 2, 4)
         ]
 
         # add the hardcoded tasks to table
@@ -436,8 +436,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
                        \nTime Used: {greedy_time}/{capacity}\
                        \n\nDP Algorithm\
                        \nSchedule: {dp_str}\
-                       \nTime Used: {dp_time}/{capacity}\
-                       \nMax Value: {dp_value}")
+                       \Total Value: {dp_value}\
+                       \nTime Used: {dp_time}/{capacity}"
+                       )
 
         if greedy_value < dp_value:
             diff = dp_value - greedy_value
