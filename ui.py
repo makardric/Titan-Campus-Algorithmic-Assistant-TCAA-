@@ -548,7 +548,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.title_label.setText(_translate("MainWindow", "Titan Campus Algorithmic Assistant"))
-        self.text_label.setText(_translate("MainWindow", "CSUF made easy."))
+        self.text_label.setText(_translate("MainWindow", "CPSC 335"))
         self.label.setText(_translate("MainWindow", "Edge Creation"))
         self.label_7.setText(_translate("MainWindow", "Start Building:"))
         self.label_8.setText(_translate("MainWindow", "End Building:"))

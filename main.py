@@ -36,11 +36,11 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
         # hardcoded adjacency list for example's sake as well as testing
         self.adj_list = {
-            "LIBRARY": {"GYM": 10, "DORM": 5, "SCIENCE HALL": 20},
-            "GYM": {"LIBRARY": 10, "CAFETERIA": 8},
-            "DORM": {"LIBRARY": 5, "CAFETERIA": 15},
-            "CAFETERIA": {"GYM": 8, "DORM": 15},
-            "SCIENCE HALL": {"LIBRARY": 20}
+            # "LIBRARY": {"GYM": 10, "DORM": 5, "SCIENCE HALL": 20},
+            # "GYM": {"LIBRARY": 10, "CAFETERIA": 8},
+            # "DORM": {"LIBRARY": 5, "CAFETERIA": 15},
+            # "CAFETERIA": {"GYM": 8, "DORM": 15},
+            # "SCIENCE HALL": {"LIBRARY": 20}
         }
 
         # add adj_list to the comboboxes
@@ -58,9 +58,9 @@ class MyApp(QMainWindow, Ui_MainWindow):
 
         # hardcoded tasks for example's sake and testing
         self.study_tasks = [
-            ("STUDY FOR MATH", 4, 10),
-            ("HISTORY HOMEWORK", 3, 7),
-            ("PHYSICS LAB", 2, 4)
+            # ("STUDY FOR MATH", 4, 10),
+            # ("HISTORY HOMEWORK", 3, 7),
+            # ("PHYSICS LAB", 2, 4)
         ]
 
         # add the hardcoded tasks to table
@@ -77,6 +77,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         self.add_file_button.clicked.connect(self.insert_file)
         self.file_list_combo.currentIndexChanged.connect(self.update_file_display)
         self.search_button.clicked.connect(self.run_search)
+
 # functions for sidebar buttons
     def go_to_home_page(self):
         self.stackedWidget.setCurrentWidget(self.home_page)
@@ -221,6 +222,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
         node1 = self.building_name_input.text().upper()
         node2 = self.neighbor_name_input.text().upper()
 
+        # check if user is inputting nothing
+        if node1 == "" or node2 == "":
+            QMessageBox.warning(self,"Warning!", "Please input valid buildings")
+            return
         # check if user is inputting the same name for both buildings
         if node1 == node2:
             QMessageBox.warning(self, "Warning!", "Building cannot connect to itself")
@@ -229,7 +234,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         distance = self.distance_input.value()
 
         # check if building exists in the adjacency list
-        if node1 not in self.adj_list:               # if not add a new entry into the dictionary 
+        if node1 not in self.adj_list:              
             self.adj_list[node1] = {}
             self.update_combo_boxes(node1)
 
@@ -453,12 +458,13 @@ class MyApp(QMainWindow, Ui_MainWindow):
         
         filename = os.path.basename(file_path)
         file_text = ""
+
         try:
             if filename.lower().endswith('.pdf'):
                 with open(file_path, "rb") as f:
                     reader = PyPDF2.PdfReader(f)
                     for page in reader.pages:
-                        file_text += page.extract_text() + "\n"
+                        file_text += page.extract_text() + " "
         
             elif file_path.lower().endswith('.docx'):
                 doc = docx.Document(file_path)
@@ -467,7 +473,10 @@ class MyApp(QMainWindow, Ui_MainWindow):
             else:
                 with open(file_path, "r", encoding = "utf-8") as f:
                     file_text += f.read()
-        
+
+            file_text = file_text.replace("\n", ' ')
+            file_text = re.sub(r'\s+', ' ', file_text)
+            
             if filename not in self.text_files:
                 self.file_list_combo.addItem(filename)
             
