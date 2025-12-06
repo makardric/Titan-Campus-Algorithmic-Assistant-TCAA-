@@ -493,20 +493,26 @@ class MyApp(QMainWindow, Ui_MainWindow):
         m = len(keyword)
         
         for line_num, line in enumerate(lines, start=1):
-            text = line.lower() 
+            text = line.lower()
             n = len(text)
             
             for i in range(n - m + 1):
-                if text[i:i+m] == keyword:
+                match_found = True
+                for j in range(m):
+                    if text[i + j] != keyword[j]:
+                        match_found = False
+                        break 
+                if match_found:
                     matches.append((line_num, line.strip()))
-                    break 
+                    break
         return matches
 
+# function for rabin_karp search
     def rabin_karp(self, lines, keyword):
         matches = []
         m = len(keyword)
-        d = 256 
-        q = 101 
+        d = 256 # alphabet size
+        q = 101 # prime number
         
         h = 1
         for i in range(m-1):
@@ -541,6 +547,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
         matches = []
         m = len(keyword)
         
+        # build lps table
         lps = [0] * m
         length = 0
         i = 1
@@ -556,6 +563,7 @@ class MyApp(QMainWindow, Ui_MainWindow):
                     lps[i] = 0
                     i += 1
 
+        # search lines
         for line_num, line in enumerate(lines, start=1):
             text = line.lower()
             n = len(text)
