@@ -48,7 +48,7 @@ class Ui_MainWindow(object):
         self.logo_image.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.logo_image.setAutoFillBackground(False)
         self.logo_image.setText("")
-        self.logo_image.setPixmap(QtGui.QPixmap("../../../../Downloads/csuf logo.png"))
+        self.logo_image.setPixmap(QtGui.QPixmap("resources/csuf logo.png"))
         self.logo_image.setScaledContents(True)
         self.logo_image.setObjectName("logo_image")
         self.image_layout.addWidget(self.logo_image)
